@@ -1,0 +1,16 @@
+// Require Mongoose
+const mongoose = require("mongoose");
+
+// Define a schema
+const Schema = mongoose.Schema;
+
+const PostSchema = new Schema({
+  title: String,
+  description: String,
+  body: String,
+  tagList: [{type: String}]
+});
+
+
+// Export function to create model class
+module.exports = mongoose.model('Post', PostSchema);
