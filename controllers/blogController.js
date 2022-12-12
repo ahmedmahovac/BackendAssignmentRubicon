@@ -16,7 +16,24 @@ exports.getPost = (req,res) => {
 }
 
 exports.getMostRecentPosts = (req,res) => {
-
+    const {tag} = req.query;
+    // po defaultu je redoslijed uzrokovan vremenom kreiranja
+    // most recent ? vracat cu ih sve sortirane po najnovijem
+    var recentPosts = []
+    PostModel.find({},(err,posts)=>{
+        if(err){
+            res.sendStatus(500);
+        }
+        else{
+            posts.forEach((post)=>{
+                if(post.tags.includes(tag)){
+                    recentPosts.push(post);
+                }
+            });
+            recentPosts = recentPosts.reverse();
+            res.json(recentPosts);
+        }
+    });
 }
 
 exports.createPost = (req,res) => {
@@ -106,7 +123,6 @@ exports.getAllTags = (req,res) => {
 exports.addComment = (req,res) => {
     // id ce se svakako kreirat automatski, nema smsila da ga ne izbaucjem
     // mogu ga samo ignorisati, a za sve primjene gdje bi koristili id koristit slug
-    // ovdje je ipak koristen id za "strani kljuc", malo vise posla al nema veze
     const {slug} = req.params;
     console.log(req.body.comment.body);
     PostModel.findOne({slug:slug}, (err,post)=>{
@@ -117,7 +133,7 @@ exports.addComment = (req,res) => {
             res.json({status: "Specified post doesn't exist"});
         }
         else{
-            CommentModel.create({_postId: post._id, body: req.body.comment.body}, (err,data)=>{
+            CommentModel.create({postSlug: slug, body: req.body.comment.body}, (err,data)=>{
                 if(err){
                     res.sendStatus(500);
                 }
@@ -130,9 +146,27 @@ exports.addComment = (req,res) => {
 }
 
 exports.getComments = (req,res) => {
-
+    const {slug} = req.params;
+    CommentModel.find({postSlug: slug}, (err,data)=>{
+        if(err){
+            res.sendStatus(500);
+        }
+        else{
+            res.json(data);
+        }
+    });
 }
 
 exports.deleteComment = (req,res) => {
-
+    const {slug, id} = req.params;
+    // koja je poenta slug-a kad se uopste ne mora iskoristit?ž
+    // mozda da izgled rute bude intuitivniji?
+    CommentModel.deleteOne({_id: id}, (err,data)=>{
+        if(err){
+            res.sendStatus(500);
+        }
+        else{
+            res.json(data);
+        }
+    });
 }

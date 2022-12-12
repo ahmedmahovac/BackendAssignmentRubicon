@@ -9,7 +9,8 @@ const PostSchema = new Schema({
   title: String,
   description: String,
   body: String,
-  tagList: [{ type: String}] //oznaci referencu na drugu kolekciju
+  tagList: [{ type: String}], //oznaci referencu na drugu kolekciju
+  createdTime: {type: Date, default: Date.now()}
 });
 
 
