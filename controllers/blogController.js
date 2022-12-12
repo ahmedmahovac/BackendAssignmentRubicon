@@ -4,7 +4,19 @@ const CommentModel = require('../models/comment')
 const slug = require("limax");
 
 exports.getPost = (req,res) => {
- 
+    const {slug} = req.params;
+    PostModel.findOne({slug: slug}, (err,data)=>{
+        if(err){
+            res.sendStatus(500);
+        }
+        else {
+            res.json(data);
+        }
+    });
+}
+
+exports.getMostRecentPosts = (req,res) => {
+
 }
 
 exports.createPost = (req,res) => {
@@ -41,15 +53,80 @@ exports.updatePost = (req,res) => {
 }
 
 exports.deletePost = (req,res) => {
-
+    const {slug} = req.params;
+    PostModel.findOne({slug:slug},(err,post)=>{
+        if(err){
+            res.sendStatus(500);
+        }
+        else{
+            if(!post) {
+                res.json({status: "Post not found"});
+            }
+            else {
+                CommentModel.deleteMany({postId: post._id}, (err,data)=>{
+                    if(err){
+                        res.sendStatus(500);
+                    }
+                    else{
+                        PostModel.deleteOne({_id: post._id}, (err,data)=>{
+                            if(err){
+                                res.sendStatus(500);
+                            }
+                            else{
+                                res.json(data);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    });
 }
 
 exports.getAllTags = (req,res) => {
-
+    var tags = []
+    PostModel.find({}, (err,posts)=>{
+        if(err){
+            res.sendStatus(500);
+        }
+        else{
+            posts.forEach(post => {
+                post.tagList.forEach(tag => {
+                    console.log(tag);
+                    if(tags.indexOf(tag)==-1){
+                        tags.push(tag);
+                    }
+                });
+            });
+            res.json(tags);
+        }
+    });
 }
 
 exports.addComment = (req,res) => {
-
+    // id ce se svakako kreirat automatski, nema smsila da ga ne izbaucjem
+    // mogu ga samo ignorisati, a za sve primjene gdje bi koristili id koristit slug
+    // ovdje je ipak koristen id za "strani kljuc", malo vise posla al nema veze
+    const {slug} = req.params;
+    console.log(req.body.comment.body);
+    PostModel.findOne({slug:slug}, (err,post)=>{
+        if(err){
+            res.sendStatus(500);
+        }
+        else if(!post){
+            res.json({status: "Specified post doesn't exist"});
+        }
+        else{
+            CommentModel.create({_postId: post._id, body: req.body.comment.body}, (err,data)=>{
+                if(err){
+                    res.sendStatus(500);
+                }
+                else{
+                    res.json(data);
+                }
+            });
+        }
+    });
 }
 
 exports.getComments = (req,res) => {

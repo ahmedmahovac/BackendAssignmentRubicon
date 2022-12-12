@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
   body: String,
-  postId: { type: Schema.Types.ObjectId, ref: "Post" }
+  _postId: { type: Schema.Types.ObjectId, ref: "Post" }
 });
 
 
