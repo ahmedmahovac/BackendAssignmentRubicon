@@ -3,11 +3,14 @@ var router = express.Router();
 
 const {getPost, createPost, updatePost, deletePost, getAllTags, addComment, getComments, deleteComment, getMostRecentPosts} = require("../controllers/blogController");
 
+
 router.get('/posts/:slug', getPost);
 
 router.get("/posts", getMostRecentPosts);
 
+
 router.post("/posts", createPost);
+
 
 router.put("/posts/:slug", updatePost);
 
