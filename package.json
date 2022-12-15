@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "jest"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -11,9 +12,13 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "js-to-ts-converter": "^0.18.2",
     "limax": "^3.0.0",
     "mongoose": "^6.8.0",
     "morgan": "~1.9.1",
     "swagger-ui-express": "^4.6.0"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
   }
 }
