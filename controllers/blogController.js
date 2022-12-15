@@ -5,15 +5,13 @@ const slug = require("limax");
 
 const createNeededJSONPost = (post) => {
     const blogPost = post.toObject();
-    delete blogPost._postId;
+    delete blogPost._id;
     delete blogPost.__v;
     return blogPost;
 }
 
-const createNeededJSONComment = (comm) => {
-    const comment = comm.toObject();
-    delete comment.__v;
-    return comment;
+const createNeededJSONComment = (comment) => {
+    return {id: comment._id, createdAt: comment.createdAt, updatedAt: comment.updatedAt, body: comment.body};
 }
 
 exports.getPost = (req,res) => {
@@ -36,13 +34,14 @@ exports.getMostRecentPosts = (req,res) => {
     // sort by created time
     // most recent ? how many? all by default
     var recentPosts = []
-    PostModel.find({}).sort('createdAt').exec((err,posts)=>{ // sort posts by createdAt
+    PostModel.find({}).sort({"createdAt": -1}).exec((err,posts)=>{ // sort posts by createdAt
         if(err){
             res.sendStatus(500);
         }
         else{
+            console.log(posts);
             posts.forEach((post)=>{
-                if(tag && post.tags.includes(tag)){ // if tag query is even sent
+                if(!tag || tag && post.tagList.includes(tag)){ // if tag query is even sent
                     recentPosts.push(createNeededJSONPost(post));
                 }
             });
@@ -73,7 +72,7 @@ exports.createPost = (req,res) => {
             res.json(data); // return post which is already created
         }
         else{
-            PostModel.create({slug: postSlug, title: title, description: description, body: body, tagList: tagList}, (err, createdPost) => {
+            PostModel.create({slug: postSlug, title: title, description: description, body: body, tagList: tagList, createdAt: Date.now(), updatedAt: Date.now()}, (err, createdPost) => {
                 if(err){
                     res.sendStatus(500);
                 }
@@ -87,7 +86,7 @@ exports.createPost = (req,res) => {
 
 exports.updatePost = (req,res) => {
     const {title, description, body} = req.body.blogPost;
-    PostModel.find({slug: req.params.slug}, (err,post)=>{
+    PostModel.findOne({slug: req.params.slug}, (err,post)=>{
         if(err){
             res.sendStatus(500);
         }
@@ -111,7 +110,7 @@ exports.updatePost = (req,res) => {
             }
             if(change){
                 post.updatedAt = Date.now(); // saving updated time
-                post.save((err,updatedPost)=>{
+                post.save(function(err,updatedPost){
                     if(err){
                         res.sendStatus(500);
                     }
@@ -122,15 +121,6 @@ exports.updatePost = (req,res) => {
             }
         } 
     })
-    PostModel.findOneAndUpdate({slug: req.params.slug}, {slug: postSlug, title: title}, (err,data)=>{
-        console.log(data);
-        if(err){
-            res.sendStatus(500);
-        }
-        else {
-            res.json(data);
-        }
-    });
 }
 
 exports.deletePost = (req,res) => {
@@ -150,7 +140,14 @@ exports.deletePost = (req,res) => {
                             res.sendStatus(500);
                         }
                         else{
-                            res.json(data); // not specified
+                            CommentModel.deleteMany({_postId: post._id}, (err,comments)=>{ // deleting comments of post
+                                if(err){
+                                    res.sendStatus(500);
+                                }
+                                else{
+                                    res.json(data); // not specified
+                                }
+                            });
                         }
                     });
             };
@@ -180,6 +177,9 @@ exports.getAllTags = (req,res) => {
 exports.addComment = (req,res) => {
     // due to url structure of this route, it is reasonable to hold comments as array attribute in post 
     const {slug} = req.params;
+    if(!req.body.comment){
+        res.sendStatus(400); // bad request
+    }
     const body = req.body.comment.body;
     if(!body){
         res.sendStatus(400); // bad request
@@ -198,6 +198,7 @@ exports.addComment = (req,res) => {
                     res.sendStatus(500);
                 }
                 else{
+                    console.log(comment);
                     res.json({comment: createNeededJSONComment(comment)});
                 }
             });
@@ -228,8 +229,8 @@ exports.deleteComment = (req,res) => {
         if(err){
             res.sendStatus(500);
         }
-        else{
-            res.json(comment);
+        else{ 
+            res.json(comment); 
         }
     });
 }
