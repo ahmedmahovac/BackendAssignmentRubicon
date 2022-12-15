@@ -7,7 +7,7 @@
 - I've connected application to database in app.js file.
 - Password for database is present in repository, I haven't put it in .gitignore.
 - Database is always up, so you just have to run node app and you should be ready to go.
-### - - Jest is used for testing purposes
+### - Jest is used for testing purposes
 
 # Implementation details worth mentioning
 - Most recent post are sorted by createdAt, not by updatedAt. All posts are returned by default (sorted). 
