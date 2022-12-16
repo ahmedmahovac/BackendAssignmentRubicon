@@ -7,6 +7,8 @@
     "test": "jest"
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
@@ -16,6 +18,8 @@
     "limax": "^3.0.0",
     "mongoose": "^6.8.0",
     "morgan": "~1.9.1",
+    "superagent": "^8.0.6",
+    "supertest": "^6.3.3",
     "swagger-ui-express": "^4.6.0"
   },
   "devDependencies": {
