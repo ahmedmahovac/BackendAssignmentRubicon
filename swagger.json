@@ -6,7 +6,7 @@
       "description": "Find out how this APIs work"
     },
     "host": "localhost:3002",
-    "basePath": "/api/v1",
+    "basePath": "",
     "tags": [
       {
         "name": "Users",
@@ -32,20 +32,18 @@
         }
     },
     "paths": {
-      "/api/": {
+      "/api/posts": {
         "post": {
-          "summary": "Create post",
-          "tags": [
-            "Users"
-          ],
+          "summary": "Create blog post",
           "description": "Create new blog post",
           "parameters": [
             {
-              "name": "user",
               "in": "body",
-              "description": "Login user",
+              "name": "body",
+              "description": "Post object that needs to be added to the blog",
+              "required": true,
               "schema": {
-                "$ref": "#/definitions/User"
+                "$ref": "#/definitions/sentBlogPostCreate"
               }
             }
           ],
@@ -54,46 +52,430 @@
           ],
           "responses": {
             "200": {
-              "description": "Login Success",
+              "description": "Adding post successful",
               "schema": {
-                "$ref": "#/definitions/User"
+                "$ref": "#/definitions/returnedBlogPost"
               }
             },
-            "401":{
-              "description": "Login details are not valid!!"
-            },
-            "404":{
-              "description": "Email is not registered!"
+            "400":{
+              "description": "Required fields not present"
             },
             "500":{
-              "description": "User login failed!!"
+              "description": "Server error"
+            },
+            "409":{
+              "description": "Post with the same title already exists"
             }
           }
+        },
+        "get": {
+          "summary": "Get most recent blog posts",
+          "description": "Returns most recent blog posts by default, optionally provide tag query parameter to filter results.",
+          "parameters": [
+              {
+                "in": "query",
+                "name": "tag",
+                "description": "Tag to filter the results",
+                "schema": {
+                  "type": "string"
+                } 
+              }
+            ],
+            "produces": [
+              "application/json"
+            ],
+            "responses": {
+              "200": {
+                "description": "Getting most recent posts successful",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "blogPosts": {
+                      "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/returnedBlogPost"
+                    }
+                    }
+                  }
+                }
+              },
+              "500":{
+                "description": "Server error"
+              }
+            }
+      }
+      },
+      "/api/posts/{slug}":{
+        "put": {
+            "summary": "Update blog post",
+            "description": "Update existing blog post with specified data",
+            "parameters": [
+                {
+                  "in": "body",
+                  "name": "body",
+                  "description": "Post update specification",
+                  "required": true,
+                  "schema": {
+                    "$ref": "#/definitions/sentBlogPostUpdate"
+                  }
+                },
+                {
+                  "in": "path",
+                  "name": "slug",
+                  "description": "Slug of the blog post which needs to be updated",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  } 
+                }
+              ],
+              "produces": [
+                "application/json"
+              ],
+              "responses": {
+                "200": {
+                  "description": "Updating post successful",
+                  "schema": {
+                    "$ref": "#/definitions/returnedBlogPost"
+                  }
+                },
+                "404":{
+                  "description": "Specified post not found"
+                },
+                "500":{
+                  "description": "Server error"
+                }
+              }
+            },
+        "delete":{
+          "summary": "Delete blog post",
+            "description": "Delete blog post with specified slug",
+            "parameters": [
+                {
+                  "in": "path",
+                  "name": "slug",
+                  "description": "Slug of the blog post which needs to be deleted",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  } 
+                }
+              ],
+              "produces": [
+                "application/json"
+              ],
+              "responses": {
+                "200": {
+                  "description": "Updating post successful",
+                  "schema": {
+                    "$ref": "#/definitions/returnedBlogPost"
+                  }
+                },
+                "404":{
+                  "description": "Specified post not found"
+                },
+                "500":{
+                  "description": "Server error"
+                }
+              
+        }
+        },
+        "get": {
+          "summary": "Get blog post",
+          "description": "Get existing blog post specified by slug",
+          "parameters": [
+              {
+                "in": "path",
+                "name": "slug",
+                "description": "Slug of the blog post which needs to be updated",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                } 
+              }
+            ],
+            "produces": [
+              "application/json"
+            ],
+            "responses": {
+              "200": {
+                "description": "Getting post successful",
+                "schema": {
+                  "$ref": "#/definitions/returnedBlogPost"
+                }
+              },
+              "404":{
+                "description": "Specified post not found"
+              },
+              "500":{
+                "description": "Server error"
+              }
+            }
+      }
+      },
+      "/api/tags":{
+        "get":{
+          "summary": "Get all tags",
+          "description": "Get all tags of blog posts",
+          "parameters": [
+            ],
+            "produces": [
+              "application/json"
+            ],
+            "responses": {
+              "200": {
+                "description": "Getting tags successful",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "500":{
+                "description": "Server error"
+              }
+            }
+        }
+      },
+      "/api/posts/{slug}/comments": {
+        "post":{
+          "summary": "Create blog post comment",
+          "description": "Create new blog post comment",
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Comment object that needs to be added to the blog post",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/sentCommentCreate"
+              }
+            },
+            {
+              "in": "path",
+              "name": "slug",
+              "description": "Slug of the blog post",
+              "required": true,
+              "schema": {
+                "type": "string"
+              } 
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Adding comment successful",
+              "schema": {
+                "$ref": "#/definitions/returnedComment"
+              }
+            },
+            "400":{
+              "description": "Bad request"
+            },
+            "500":{
+              "description": "Server error"
+            },
+            "404":{
+              "description": "Specified blog post not found"
+            }
+          }
+        },
+        "get":{
+          "summary": "Get comments",
+          "description": "Get post's comments, post is specified by slug",
+          "parameters": [
+              {
+                "in": "path",
+                "name": "slug",
+                "description": "Slug of the blog post",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                } 
+              }
+            ],
+            "produces": [
+              "application/json"
+            ],
+            "responses": {
+              "200": {
+                "description": "Getting post successful",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/returnedComment"
+                      }
+                    }
+                  }
+                }
+              },
+              "404":{
+                "description": "Specified post not found"
+              },
+              "500":{
+                "description": "Server error"
+              }
+            }
+        }
+      },
+      "/api/posts/{slug}/comments/{id}": {
+        "delete": {
+          "summary": "Delete blog post's comments",
+          "description": "Delete blog post's comments, post is specified by slug",
+          "parameters": [
+              {
+                "in": "path",
+                "name": "slug",
+                "description": "Slug of the blog post of which comment needs to be deleted",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }},
+                {
+                  "in": "path",
+                  "name": "id",
+                  "description": "Id of comment which needs to be deleted",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  } 
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Deleting post comment successful"
+              },
+              "500":{
+                "description": "Server error"
+              }
+            
+      }
         }
       }
     },
-
     "definitions": {
-
-      "User": {
+    "returnedBlogPost": {
         "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
+            "blogPost":{
+                "type": "object",
+                "properties":{
+                    "slug": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "tagList": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                }
+            }
+         }
+        },
+      "returnedComment": {
+        "properties": {
+          "comment":{
+            "type": "object",
+            "properties":{
+                "id": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                }
+            }
           }
-        }
       },
-      "userEmail":{
-        "properties": {
-          "email": {
-            "type": "string"
-          }
+    "sentBlogPostCreate": {
+        "properties":{
+            "blogPost":{
+                "type": "object",
+                "properties":{
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "tagList": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
         }
+    }
+      },
+      "sentCommentCreate": {
+        "properties":{
+            "comment":{
+                "type": "object",
+                "properties":{
+                    "body": {
+                        "type": "string"
+                    }
+                }
+        }
+    }
+      },
+      "sentBlogPostUpdate": {
+        "properties":{
+            "blogPost":{
+                "type": "object",
+                "properties":{
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    }
+                }
+        }
+    }
       }
-
-
-
     }
   }

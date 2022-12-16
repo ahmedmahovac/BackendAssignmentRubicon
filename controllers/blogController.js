@@ -213,6 +213,9 @@ exports.getComments = (req,res) => {
             res.sendStatus(500);
         }
         else{
+            if(!comments){
+                res.sendStatus(404);
+            }
             comments.map((comment)=>{
                 createNeededJSONComment(comment);
             })
