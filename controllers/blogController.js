@@ -68,7 +68,7 @@ exports.createPost = (req,res) => {
             res.sendStatus(500);
         }
         else if(data!=null){ //already exists
-            res.statusCode = 409;
+            res.status = 409;
             res.json(data); // return post which is already created
         }
         else{
@@ -131,7 +131,7 @@ exports.deletePost = (req,res) => {
         }
         else{
             if(!post) {
-                res.statusCode(404);
+                res.status(404);
                 res.json({status: "Post not found"});
             }
             else {
@@ -156,7 +156,7 @@ exports.deletePost = (req,res) => {
 }
 
 exports.getAllTags = (req,res) => {
-    var tags = []
+    var tags = [];
     PostModel.find({}, (err,posts)=>{
         if(err){
             res.sendStatus(500);
@@ -164,7 +164,7 @@ exports.getAllTags = (req,res) => {
         else{
             posts.forEach(post => {
                 post.tagList.forEach(tag => {
-                    if(!tags.include(tag)){
+                    if(!tags.includes(tag)){
                         tags.push(tag);
                     }
                 });
@@ -189,7 +189,7 @@ exports.addComment = (req,res) => {
             res.sendStatus(500);
         }
         else if(!post){
-            res.statusCode(404); // not found
+            res.status(404); // not found
             res.json({status: "Specified post doesn't exist"});
         }
         else{
