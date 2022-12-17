@@ -8,6 +8,7 @@
 - Password for database is present in repository, I haven't put it in .gitignore.
 - Database is always up, so you just have to run node app and you should be ready to go.
 ### - Jest is used for testing purposes. Script can be run with "npm test"
+### - Swagger UI is available at http://localhost:3000/api-docs/
 
 # Implementation details worth mentioning
 - Since I'm mainly familiar with plain javascript and since typescript is basically superset of javascript, I haven't converted my javascript code to typescript code. I didn't want to submit non-optimal typescript code and I didn't have enough time to get familiar with typescript too. I hope it's acceptable.
