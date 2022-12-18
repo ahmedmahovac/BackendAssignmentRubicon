@@ -16,5 +16,5 @@
 - Most recent post are sorted by createdAt, not by updatedAt. All posts are returned by default (sorted). 
 - Posts are referenced by id, not slug, by comments. So the reference doesn't have to be changed when updating post title. 
 - Post comments are deleted when post is deleted 
-
+- I noticed 1 bug, but after deadline so I didn't want to commit anything. Since I've changed db structure a few times, when I decided to stick with postId attribute in CommentModel, I forgot to make changes to getting comments for certain blog post. The implementation I've submitted is based on assumption that "postSlug" attribute in CommentModel exists, which isn't true. Based on current db structure, I should have first got post id by using slug, then to simply get comments by previously found _postId.
 
